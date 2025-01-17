@@ -1,42 +1,30 @@
 "use client"
 
-import { useOptimistic } from "react"
-import { CreateItem } from "./create"
+import React, { useOptimistic } from "react"
 import { getBoard } from "@/db/queries"
+import { Column } from "./column"
 import { Item } from "@prisma/client"
+import { produce } from "immer"
 
 type BoardType = NonNullable<Awaited<ReturnType<typeof getBoard>>>
 
 export function Board({ board }: { board: BoardType }) {
-
-  const { optimisticBoard } = useOptimisticBoard(board)
+  const { optimisticBoard, optimisticBoardAction } = useOptimisticBoard(board)
   return (
     <div className="flex gap-2 overflow-x-auto flex-grow">
       {Object.values(optimisticBoard.columns).map(col => (
-        <div
+        <Column
           key={col.id}
-          className="flex-shrink-0 h-fit bg-neutral-800 w-[256px] rounded text-white space-y-2"
-        >
-          <h1 className="pl-4 pt-2">{col.name}</h1>
-          <ul className="max-h-[512px] overflow-auto space-y-2" ref={null}>
-              {Object.values(col.items).length ?
-                Object.values(col.items).map(item => (
-                  <li className="px-2" key={item.id}>
-                    <div className="p-2 min-h-16 bg-neutral-700 rounded ">{item.content}</div>
-                  </li>
-                ))
-                :
-                <p className="text-gray-400 text-center text-sm">No items yet</p>
-              }
-          </ul>
-          <CreateItem boardId={board.id} columnId={col.id} items={Object.values(col.items)} />
-        </div>
+          boardId={optimisticBoard.id}
+          column={col}
+          optimisticBoardAction={optimisticBoardAction}
+        />
       ))}
     </div>
   )
 }
 
-type OptimisticActions =
+export type OptimisticActions =
   { type: "ADD_ITEM", payload: Item }
 
 function useOptimisticBoard(board: BoardType) {
@@ -45,8 +33,11 @@ function useOptimisticBoard(board: BoardType) {
     (state, action) => {
       switch (action.type) {
         case "ADD_ITEM": {
-          // TODO
-          return state
+          const newItem = action.payload
+          const nextState = produce(state, draft => {
+            draft.columns[newItem.columnId].items[newItem.id] = newItem
+          })
+          return nextState
         }
         default: {
           return state
@@ -54,5 +45,5 @@ function useOptimisticBoard(board: BoardType) {
       }
     }
   )
-  return { optimisticBoard, optimisticBoardAction}
+  return { optimisticBoard, optimisticBoardAction }
 }

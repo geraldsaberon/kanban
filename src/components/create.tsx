@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState } from "react";
+import { startTransition, useActionState, useRef } from "react";
 import { createBoard, createColumn, createItem } from "@/actions";
 import { nanoid } from "nanoid";
 import { Item } from "@prisma/client";
@@ -26,20 +26,35 @@ export function CreateColumn({ boardId }: { boardId: string }) {
   )
 }
 
-interface CreateItemProps { 
+interface CreateItemProps {
   boardId: string,
   columnId: string,
-  items: Item[],
+  order: number,
+  optimisticAdd: (newItem: Item) => void,
 }
 
-export function CreateItem({ boardId, columnId, items }: CreateItemProps) {
-  items = items.toSorted((a, b) => a.order - b.order)
-  const order = items[items.length-1] ? items[items.length-1].order+1 : 1
+export function CreateItem({ boardId, columnId, order, optimisticAdd }: CreateItemProps) {
+  const formRef = useRef<HTMLFormElement>(null)
   const [, formAction] = useActionState(createItem, null)
   return (
     <form
       className="flex p-4 mt-4"
-      action={formAction}
+      ref={formRef}
+      onSubmit={(e) => {
+        e.preventDefault()
+        const formdata = new FormData(e.currentTarget)
+        startTransition(() => {
+          optimisticAdd({
+            id: String(formdata.get("id")),
+            boardId: String(formdata.get("boardId")),
+            columnId: String(formdata.get("columnId")),
+            order: Number(formdata.get("order")),
+            content: String(formdata.get("content")),
+          })
+          formAction(formdata)
+        })
+        formRef.current?.reset()
+      }}
     >
       <input hidden type="text" name="id" defaultValue={nanoid()} />
       <input hidden type="text" name="boardId" defaultValue={boardId} />
