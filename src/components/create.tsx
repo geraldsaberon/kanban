@@ -4,6 +4,7 @@ import { startTransition, useActionState, useRef } from "react";
 import { createBoard, createColumn, createItem } from "@/actions";
 import { nanoid } from "nanoid";
 import { Item } from "@prisma/client";
+import { flushSync } from "react-dom";
 
 export function CreateBoard() {
   const [, formAction, isPending] = useActionState(createBoard, null)
@@ -31,9 +32,10 @@ interface CreateItemProps {
   columnId: string,
   order: number,
   optimisticAdd: (newItem: Item) => void,
+  scrollItemList: () => void
 }
 
-export function CreateItem({ boardId, columnId, order, optimisticAdd }: CreateItemProps) {
+export function CreateItem({ boardId, columnId, order, optimisticAdd, scrollItemList }: CreateItemProps) {
   const formRef = useRef<HTMLFormElement>(null)
   const [, formAction] = useActionState(createItem, null)
   return (
@@ -43,17 +45,20 @@ export function CreateItem({ boardId, columnId, order, optimisticAdd }: CreateIt
       onSubmit={(e) => {
         e.preventDefault()
         const formdata = new FormData(e.currentTarget)
-        startTransition(() => {
-          optimisticAdd({
-            id: String(formdata.get("id")),
-            boardId: String(formdata.get("boardId")),
-            columnId: String(formdata.get("columnId")),
-            order: Number(formdata.get("order")),
-            content: String(formdata.get("content")),
+        flushSync(() => {
+          startTransition(() => {
+            optimisticAdd({
+              id: String(formdata.get("id")),
+              boardId: String(formdata.get("boardId")),
+              columnId: String(formdata.get("columnId")),
+              order: Number(formdata.get("order")),
+              content: String(formdata.get("content")),
+            })
+            formAction(formdata)
           })
-          formAction(formdata)
         })
         formRef.current?.reset()
+        scrollItemList()
       }}
     >
       <input hidden type="text" name="id" defaultValue={nanoid()} />
