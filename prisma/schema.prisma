@@ -9,3 +9,33 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+model Board {
+  id      String @id
+  name    String
+  user    String
+
+  columns Column[]
+  items   Item[]
+}
+
+model Column {
+  id      String @id
+  name    String
+  items   Item[]
+
+  boardId String
+  board   Board @relation(fields: [boardId], references: [id])
+}
+
+model Item {
+  id       String @id
+  content  String
+  order    Float
+
+  columnId String
+  column   Column @relation(fields: [columnId], references: [id])
+
+  boardId  String
+  board    Board @relation(fields: [boardId], references: [id])
+}
