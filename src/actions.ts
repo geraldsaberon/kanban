@@ -5,6 +5,7 @@ import { prisma } from "./db";
 import { getUser } from "./utils";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { Item } from "@prisma/client";
 
 export async function createBoard(_: unknown, formdata: FormData) {
   const user = await getUser()
@@ -65,5 +66,19 @@ export async function createItem(_: unknown, formdata: FormData) {
     }
   })
   revalidatePath(`board/${boardId}`)
+}
+
+export async function moveItem(item: Item, newOrder: number, newColumnId: string) {
+  await prisma.item.update({
+    where: {
+      id: item.id
+    },
+    data: {
+      ...item,
+      order: newOrder,
+      columnId: newColumnId
+    }
+  })
+  revalidatePath(`board/${item.boardId}`)
 }
 

@@ -4,6 +4,7 @@ import { CreateItem } from "./create"
 import { OptimisticActions } from "./board"
 import { useRef } from "react"
 import { ColumnType } from "@/db/queries"
+import { DraggableItem } from "./draggable-item"
 
 interface ColumnProps {
   boardId: string,
@@ -17,12 +18,16 @@ export function Column({ boardId, column, optimisticBoardAction }: ColumnProps) 
   return (
     <div className="bg-neutral-800 rounded flex-shrink-0 w-64 space-y-2 h-fit max-h-full flex flex-col">
       <h1 className="pl-4 pt-2">{column.name}</h1>
-      <ul className="overflow-y-auto space-y-2" ref={listRef}>
+      <ul className="overflow-y-auto" ref={listRef}>
           {items.length ?
-            items.map(item => (
-              <li className="px-2" key={item.id}>
-                <div className="p-2 min-h-16 bg-neutral-700 rounded ">{item.content}</div>
-              </li>
+            items.map((item, index) => (
+              <DraggableItem
+                key={item.id}
+                item={item}
+                prevOrder={items[index-1] ? items[index-1].order : 0}
+                nextOrder={items[index+1] ? items[index+1].order : item.order+1}
+                optimisticMove={(item, newOrder, newColumnId) => optimisticBoardAction({ type: "MOVE_ITEM", payload: { item, newOrder, newColumnId}})}
+              />
             ))
             :
             <p className="text-gray-400 text-center text-sm">No items yet</p>
