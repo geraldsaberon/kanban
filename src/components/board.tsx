@@ -1,9 +1,9 @@
 "use client"
 
 import { useOptimistic, useRef } from "react"
-import { getBoard } from "@/db/queries"
+import { getBoard, ColumnType } from "@/db/queries"
 import { Column } from "./column"
-import { Column as ColumnType, Item } from "@prisma/client"
+import { Item } from "@prisma/client"
 import { produce } from "immer"
 import { CreateColumn } from "./create"
 
@@ -36,7 +36,7 @@ export function Board({ board }: { board: BoardType }) {
 
 export type OptimisticActions =
   { type: "ADD_ITEM", payload: Item } |
-  { type: "ADD_COL", payload: ColumnType & { items: Record<Item["id"], Item> } }
+  { type: "ADD_COL", payload: ColumnType }
 
 function useOptimisticBoard(board: BoardType) {
   const [optimisticBoard, optimisticBoardAction] = useOptimistic<typeof board, OptimisticActions>(

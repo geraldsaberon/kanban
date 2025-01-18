@@ -45,7 +45,7 @@ export async function createColumn(_: unknown, formdata: FormData) {
       boardId: boardId.toString()
     }
   })
-  revalidatePath(`/boards/${boardId}`)
+  revalidatePath(`/board/${boardId}`)
 }
 
 export async function createItem(_: unknown, formdata: FormData) {

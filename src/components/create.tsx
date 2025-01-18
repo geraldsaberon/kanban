@@ -3,8 +3,9 @@
 import { startTransition, useActionState, useRef } from "react";
 import { createBoard, createColumn, createItem } from "@/actions";
 import { nanoid } from "nanoid";
-import { Column, Item } from "@prisma/client";
+import { Item } from "@prisma/client";
 import { flushSync } from "react-dom";
+import { ColumnType } from "@/db/queries";
 
 export function CreateBoard() {
   const [, formAction, isPending] = useActionState(createBoard, null)
@@ -18,7 +19,7 @@ export function CreateBoard() {
 
 interface CreateColumnProps {
   boardId: string,
-  optimisticAdd: (newCol: Column & { items: Record<Item["id"], Item>}) => void,
+  optimisticAdd: (newCol: ColumnType) => void,
   scrollColumnsList: () => void,
 }
 

@@ -1,13 +1,13 @@
 "use client"
 
-import { Column as ColumnType, Item } from "@prisma/client"
 import { CreateItem } from "./create"
 import { OptimisticActions } from "./board"
 import { useRef } from "react"
+import { ColumnType } from "@/db/queries"
 
 interface ColumnProps {
   boardId: string,
-  column: ColumnType & { items: Record<Item["id"], Item> },
+  column: ColumnType,
   optimisticBoardAction: (action: OptimisticActions) => void
 }
 

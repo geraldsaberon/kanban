@@ -12,7 +12,6 @@ export async function getBoard(boardId: string) {
           items: true
         }
       },
-      items: true
     }
   })
   if (board) {
@@ -29,8 +28,10 @@ export async function getBoard(boardId: string) {
           }, {} as Record<Item["id"], Item>)
         }
         return colAcc
-      }, {} as Record<Column["id"], Column & { items: Record<Item["id"], Item>}>)
+      }, {} as Record<Column["id"], ColumnType>)
     }
   }
   return null
 }
+
+export type ColumnType = Column & { items: Record<Item["id"], Item>}
