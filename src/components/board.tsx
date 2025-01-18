@@ -13,14 +13,14 @@ export function Board({ board }: { board: BoardType }) {
   const { optimisticBoard, optimisticBoardAction } = useOptimisticBoard(board)
   const columnsRef = useRef<HTMLDivElement>(null)
   return (
-    <div className="min-h-[100vh] p-2 flex flex-col gap-2">
+    <div className="h-screen p-2 flex flex-col gap-2">
       <h1 className="text-xl">{board.name}</h1>
       <CreateColumn
         boardId={board.id}
         scrollColumnsList={() => columnsRef.current && (columnsRef.current.scrollLeft = columnsRef.current.scrollWidth)}
         optimisticAdd={(newCol) => optimisticBoardAction({ type: "ADD_COL", payload: newCol})}
       />
-      <div className="flex gap-2 overflow-x-auto flex-grow" ref={columnsRef}>
+      <div className="h-full flex gap-2 overflow-x-auto" ref={columnsRef}>
         {Object.values(optimisticBoard.columns).map(col => (
           <Column
             key={col.id}

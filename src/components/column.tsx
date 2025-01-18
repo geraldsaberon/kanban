@@ -15,11 +15,9 @@ export function Column({ boardId, column, optimisticBoardAction }: ColumnProps) 
   const listRef = useRef<HTMLUListElement>(null)
   const items = Object.values(column.items).sort((a, b) => a.order - b.order)
   return (
-    <div
-      className="flex-shrink-0 h-fit bg-neutral-800 w-[256px] rounded text-white space-y-2"
-    >
+    <div className="bg-neutral-800 rounded flex-shrink-0 w-64 space-y-2 h-fit max-h-full flex flex-col">
       <h1 className="pl-4 pt-2">{column.name}</h1>
-      <ul className="max-h-[512px] overflow-auto space-y-2" ref={listRef}>
+      <ul className="overflow-y-auto space-y-2" ref={listRef}>
           {items.length ?
             items.map(item => (
               <li className="px-2" key={item.id}>
