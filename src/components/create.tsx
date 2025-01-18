@@ -3,7 +3,7 @@
 import { startTransition, useActionState, useRef } from "react";
 import { createBoard, createColumn, createItem } from "@/actions";
 import { nanoid } from "nanoid";
-import { Item } from "@prisma/client";
+import { Column, Item } from "@prisma/client";
 import { flushSync } from "react-dom";
 
 export function CreateBoard() {
@@ -16,10 +16,36 @@ export function CreateBoard() {
   )
 }
 
-export function CreateColumn({ boardId }: { boardId: string }) {
+interface CreateColumnProps {
+  boardId: string,
+  optimisticAdd: (newCol: Column & { items: Record<Item["id"], Item>}) => void,
+  scrollColumnsList: () => void,
+}
+
+export function CreateColumn({ boardId, scrollColumnsList, optimisticAdd }: CreateColumnProps) {
+  const formRef = useRef<HTMLFormElement>(null)
   const [, formAction] = useActionState(createColumn, null)
   return (
-    <form className="flex gap-2" action={formAction}>
+    <form
+      className="flex gap-2"
+      ref={formRef}
+      action={formAction}
+      onSubmit={(e) => {
+        e.preventDefault()
+        const formdata = new FormData(e.currentTarget)
+        flushTransition(() => {
+          optimisticAdd({
+            id: String(formdata.get("id")),
+            boardId: String(formdata.get("boardId")),
+            name: String(formdata.get("name")),
+            items: {}
+          })
+          formAction(formdata)
+        })
+        formRef.current?.reset()
+        scrollColumnsList()
+      }}
+    >
       <input required className="w-[256px] rounded bg-neutral-800 p-4" placeholder="Enter column name" type="text" name="name" />
       <input hidden type="text" name="boardId" defaultValue={boardId} />
       <button type="submit">Create column</button>
@@ -45,17 +71,15 @@ export function CreateItem({ boardId, columnId, order, optimisticAdd, scrollItem
       onSubmit={(e) => {
         e.preventDefault()
         const formdata = new FormData(e.currentTarget)
-        flushSync(() => {
-          startTransition(() => {
-            optimisticAdd({
-              id: String(formdata.get("id")),
-              boardId: String(formdata.get("boardId")),
-              columnId: String(formdata.get("columnId")),
-              order: Number(formdata.get("order")),
-              content: String(formdata.get("content")),
-            })
-            formAction(formdata)
+        flushTransition(() => {
+          optimisticAdd({
+            id: String(formdata.get("id")),
+            boardId: String(formdata.get("boardId")),
+            columnId: String(formdata.get("columnId")),
+            order: Number(formdata.get("order")),
+            content: String(formdata.get("content")),
           })
+          formAction(formdata)
         })
         formRef.current?.reset()
         scrollItemList()
@@ -69,4 +93,9 @@ export function CreateItem({ boardId, columnId, order, optimisticAdd, scrollItem
       <button hidden type="submit">Add item</button>
     </form>
   )
+}
+
+
+function flushTransition(fn: () => void) {
+  flushSync(() => startTransition(fn))
 }

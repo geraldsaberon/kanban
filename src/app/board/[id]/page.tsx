@@ -1,5 +1,4 @@
 import { Board } from "@/components/board"
-import { CreateColumn } from "@/components/create"
 import { getBoard } from "@/db/queries"
 import { getUser } from "@/utils"
 import Link from "next/link"
@@ -25,11 +24,5 @@ export default async function BoardPage({
     )
   }
 
-  return (
-    <div className="min-h-[100vh] p-2 flex flex-col gap-2">
-      <h1 className="text-xl">{board?.name}</h1>
-      <CreateColumn boardId={boardId} />
-      <Board board={board} />
-    </div>
-  )
+  return <Board board={board} />
 }
