@@ -2,22 +2,24 @@
 
 import { nanoid } from "nanoid";
 import { prisma } from "./db";
-import { getUser } from "./utils";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { Item } from "@prisma/client";
+import { auth } from "./auth";
+
+async function authenticateUser() {
+  const session = await auth()
+  if (!session?.user) {
+    throw new Error("You must be signed in to perform this action")
+  }
+  return session.user
+}
 
 export async function createBoard(_: unknown, formdata: FormData) {
-  const user = await getUser()
-  if (!user) {
-    throw new Error("Can't create board without a user")
-  }
+  const user = await authenticateUser()
   const name = formdata.get("name")
-  if (!name) {
-    return {
-      message: "Board name required."
-    }
-  }
+  if (!name)
+    return { message: "Board name required." }
   const newBoard = await prisma.board.create({
     data: {
       id: nanoid(),
@@ -30,6 +32,7 @@ export async function createBoard(_: unknown, formdata: FormData) {
 }
 
 export async function createColumn(_: unknown, formdata: FormData) {
+  await authenticateUser()
   const name = formdata.get("name")
   const boardId = formdata.get("boardId")
 
@@ -50,6 +53,7 @@ export async function createColumn(_: unknown, formdata: FormData) {
 }
 
 export async function createItem(_: unknown, formdata: FormData) {
+  await authenticateUser()
   const id = String(formdata.get("id"))
   const boardId = String(formdata.get("boardId"))
   const columnId = String(formdata.get("columnId"))
@@ -69,6 +73,7 @@ export async function createItem(_: unknown, formdata: FormData) {
 }
 
 export async function moveItem(item: Item, newOrder: number, newColumnId: string) {
+  await authenticateUser()
   await prisma.item.update({
     where: {
       id: item.id
@@ -82,3 +87,12 @@ export async function moveItem(item: Item, newOrder: number, newColumnId: string
   revalidatePath(`board/${item.boardId}`)
 }
 
+export async function deleteItem(itemId: string) {
+  await authenticateUser()
+  await prisma.item.delete({
+    where: {
+      id: itemId
+    }
+  })
+  revalidatePath("/board/")
+}

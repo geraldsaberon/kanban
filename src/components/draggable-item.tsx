@@ -1,15 +1,17 @@
 import { Item } from "@prisma/client";
 import { startTransition, useState } from "react";
-import { moveItem } from "@/actions";
+import { deleteItem, moveItem } from "@/actions";
+import { DeleteButton } from "./delete-button";
+import { OptimisticActions } from "./board";
 
 interface DraggableItemProps {
   item: Item,
   prevOrder: number,
   nextOrder: number,
-  optimisticMove: (item: Item, newOrder: number, newColumnId: string) => void
+  optimisticBoardAction: (action: OptimisticActions) => void
 }
 
-export function DraggableItem({ item, prevOrder, nextOrder, optimisticMove }: DraggableItemProps) {
+export function DraggableItem({ item, prevOrder, nextOrder, optimisticBoardAction }: DraggableItemProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [acceptDrop, setAcceptDrop] = useState<"top" | "bottom" | "none">("none")
   return (
@@ -42,7 +44,10 @@ export function DraggableItem({ item, prevOrder, nextOrder, optimisticMove }: Dr
         const dropOrder = acceptDrop === "top" ? prevOrder : nextOrder
         const newOrder = (item.order + dropOrder) / 2
         startTransition(() => {
-          optimisticMove(itemToMove, newOrder, item.columnId)
+          optimisticBoardAction({
+            type: "MOVE_ITEM",
+            payload: { item: itemToMove, newColumnId: item.columnId, newOrder }}
+          )
           moveItem(itemToMove, newOrder, item.columnId)
         })
         setAcceptDrop("none")
@@ -50,9 +55,18 @@ export function DraggableItem({ item, prevOrder, nextOrder, optimisticMove }: Dr
     >
       <div
         draggable
-        className="p-2 min-h-16 bg-neutral-700 rounded "
+        className="group p-2 min-h-16 bg-neutral-700 rounded flex justify-between items-baseline"
       >
         <p>{item.content}</p>
+        <DeleteButton
+          className="invisible group-hover:visible hover:text-red-500 hover:cursor-pointer"
+          onClick={() => {
+            startTransition(() => {
+              optimisticBoardAction({ type: "DEL_ITEM", payload: { itemId: item.id, columnId: item.columnId }})
+              deleteItem(item.id)
+            })
+          }}
+        />
       </div>
     </li>
   )

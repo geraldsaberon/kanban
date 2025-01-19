@@ -18,9 +18,6 @@ export function Column({ boardId, column, optimisticBoardAction }: ColumnProps) 
   const [isDragOver, setIsDragOver] = useState(false)
   const listRef = useRef<HTMLUListElement>(null)
   const items = Object.values(column.items).sort((a, b) => a.order - b.order)
-  const optimisticMove = (item: Item, newOrder: number, newColumnId: string) => {
-    optimisticBoardAction({ type: "MOVE_ITEM", payload: { item, newOrder, newColumnId}})
-  }
   return (
     <div
       className={
@@ -35,7 +32,10 @@ export function Column({ boardId, column, optimisticBoardAction }: ColumnProps) 
         const itemToMove = JSON.parse(e.dataTransfer.getData("ITEM_TO_MOVE")) as Item
         startTransition(() => {
           const newOrder = items.at(-1) ? items.at(-1)!.order + 1 : 1
-          optimisticMove(itemToMove, newOrder, column.id)
+          optimisticBoardAction({
+            type: "MOVE_ITEM",
+            payload: { item: itemToMove, newColumnId: column.id, newOrder }
+          })
           moveItem(itemToMove, newOrder, column.id)
         })
         setIsDragOver(false)
@@ -53,7 +53,7 @@ export function Column({ boardId, column, optimisticBoardAction }: ColumnProps) 
                 item={item}
                 prevOrder={items[index-1] ? items[index-1].order : 0}
                 nextOrder={items[index+1] ? items[index+1].order : item.order+1}
-                optimisticMove={optimisticMove}
+                optimisticBoardAction={optimisticBoardAction}
               />
             ))
             :
