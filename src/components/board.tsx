@@ -41,7 +41,8 @@ export type OptimisticActions =
     type: "MOVE_ITEM",
     payload: { item: Item, newOrder: number, newColumnId: string }
   } |
-  { type: "DEL_ITEM", payload: { itemId: string, columnId: string }}
+  { type: "DEL_ITEM", payload: { itemId: string, columnId: string }} |
+  { type: "DEL_COL", payload: { columnId: string }}
 
 function useOptimisticBoard(board: BoardType) {
   const [optimisticBoard, optimisticBoardAction] = useOptimistic<typeof board, OptimisticActions>(
@@ -76,6 +77,13 @@ function useOptimisticBoard(board: BoardType) {
           const columnId = action.payload.columnId
           const nextState = produce(state, draft => {
             delete draft.columns[columnId].items[itemId]
+          })
+          return nextState
+        }
+        case "DEL_COL": {
+          const columnId = action.payload.columnId
+          const nextState = produce(state, draft => {
+            delete draft.columns[columnId]
           })
           return nextState
         }

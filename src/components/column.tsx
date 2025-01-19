@@ -5,8 +5,9 @@ import { OptimisticActions } from "./board"
 import { useRef, useState, startTransition } from "react"
 import { ColumnType } from "@/db/queries"
 import { DraggableItem } from "./draggable-item"
-import { moveItem } from "@/actions"
+import { deleteColumn, moveItem } from "@/actions"
 import { Item } from "@prisma/client"
+import { DeleteButton } from "./delete-button"
 
 interface ColumnProps {
   boardId: string,
@@ -44,7 +45,18 @@ export function Column({ boardId, column, optimisticBoardAction }: ColumnProps) 
         setIsDragOver(false)
       }}
     >
-      <h1 className="pl-4 pt-2">{column.name}</h1>
+      <div className="group flex justify-between px-4 pt-2">
+        <h1>{column.name}</h1>
+        <DeleteButton
+          className="invisible group-hover:visible hover:text-red-500 hover:cursor-pointer"
+          onClick={() => {
+            startTransition(() => {
+              optimisticBoardAction({ type: "DEL_COL", payload: { columnId: column.id }})
+              deleteColumn(column.id)
+            })
+          }}
+        />
+      </div>
       <ul className="overflow-y-auto" ref={listRef}>
           {items.length ?
             items.map((item, index) => (

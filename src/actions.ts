@@ -96,3 +96,14 @@ export async function deleteItem(itemId: string) {
   })
   revalidatePath("/board/")
 }
+
+export async function deleteColumn(columnId: string) {
+  await authenticateUser()
+  await prisma.item.deleteMany({
+    where: { columnId }
+  })
+  await prisma.column.delete({
+    where: { id: columnId }
+  })
+  revalidatePath("/board/")
+}
