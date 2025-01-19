@@ -12,16 +12,12 @@ type BoardType = NonNullable<Awaited<ReturnType<typeof getBoard>>>
 export function Board({ board }: { board: BoardType }) {
   const { optimisticBoard, optimisticBoardAction } = useOptimisticBoard(board)
   const columnsRef = useRef<HTMLDivElement>(null)
+  const columns = Object.values(optimisticBoard.columns)
   return (
     <div className="h-screen p-2 flex flex-col gap-2">
       <h1 className="text-xl">{board.name}</h1>
-      <CreateColumn
-        boardId={board.id}
-        scrollColumnsList={() => columnsRef.current && (columnsRef.current.scrollLeft = columnsRef.current.scrollWidth)}
-        optimisticAdd={(newCol) => optimisticBoardAction({ type: "ADD_COL", payload: newCol})}
-      />
       <div className="h-full flex gap-2 overflow-x-auto" ref={columnsRef}>
-        {Object.values(optimisticBoard.columns).map(col => (
+        {columns.map(col => (
           <Column
             key={col.id}
             boardId={optimisticBoard.id}
@@ -29,6 +25,12 @@ export function Board({ board }: { board: BoardType }) {
             optimisticBoardAction={optimisticBoardAction}
           />
         ))}
+        <CreateColumn
+          boardId={board.id}
+          scrollColumnsList={() => columnsRef.current && (columnsRef.current.scrollLeft = columnsRef.current.scrollWidth)}
+          optimisticAdd={(newCol) => optimisticBoardAction({ type: "ADD_COL", payload: newCol})}
+          isEditingInitially={columns.length === 0}
+        />
       </div>
     </div>
   )

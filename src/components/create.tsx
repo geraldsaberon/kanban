@@ -1,6 +1,6 @@
 "use client"
 
-import { startTransition, useActionState, useRef } from "react";
+import { startTransition, useActionState, useRef, useState } from "react";
 import { createBoard, createColumn, createItem } from "@/actions";
 import { nanoid } from "nanoid";
 import { Item } from "@prisma/client";
@@ -19,16 +19,18 @@ export function CreateBoard() {
 
 interface CreateColumnProps {
   boardId: string,
+  isEditingInitially: boolean
   optimisticAdd: (newCol: ColumnType) => void,
   scrollColumnsList: () => void,
 }
 
-export function CreateColumn({ boardId, scrollColumnsList, optimisticAdd }: CreateColumnProps) {
+export function CreateColumn({ boardId, isEditingInitially, scrollColumnsList, optimisticAdd }: CreateColumnProps) {
+  const [isEditing, setIsEditing] = useState(isEditingInitially)
   const formRef = useRef<HTMLFormElement>(null)
   const [, formAction] = useActionState(createColumn, null)
-  return (
+  return isEditing ? (
     <form
-      className="flex gap-2"
+      className="space-y-2 h-fit bg-neutral-800 p-2 rounded"
       ref={formRef}
       action={formAction}
       onSubmit={(e) => {
@@ -46,11 +48,37 @@ export function CreateColumn({ boardId, scrollColumnsList, optimisticAdd }: Crea
         formRef.current?.reset()
         scrollColumnsList()
       }}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) {
+          setIsEditing(false)
+        }
+      }}
     >
-      <input required className="w-[256px] rounded bg-neutral-800 p-4" placeholder="Enter column name" type="text" name="name" />
       <input hidden type="text" name="boardId" defaultValue={boardId} />
-      <button type="submit">Create column</button>
+      <input
+        required
+        autoFocus
+        autoComplete="off"
+        className="w-64 rounded bg-neutral-700 p-4"
+        placeholder="Enter column name"
+        type="text"
+        name="name"
+      />
+      <button
+        type="submit"
+        className="block w-full rounded bg-neutral-700 py-2"
+      >Create column</button>
     </form>
+  ) : (
+    <button
+      className="min-w-12 size-12 text-3xl bg-neutral-800 rounded "
+      onClick={() => {
+        flushSync(() => {
+          setIsEditing(true)
+        })
+        scrollColumnsList()
+      }}
+    >+</button>
   )
 }
 
