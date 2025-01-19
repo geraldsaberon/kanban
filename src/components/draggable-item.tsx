@@ -28,6 +28,7 @@ export function DraggableItem({ item, prevOrder, nextOrder, optimisticMove }: Dr
       }}
       onDragOver={(e) => {
         e.preventDefault()
+        e.stopPropagation()
         const rect = e.currentTarget.getBoundingClientRect();
         const midpoint = (rect.top + rect.bottom) / 2;
         setAcceptDrop(e.clientY <= midpoint ? "top" : "bottom");
@@ -36,6 +37,7 @@ export function DraggableItem({ item, prevOrder, nextOrder, optimisticMove }: Dr
         setAcceptDrop("none")
       }}
       onDrop={(e) => {
+        e.stopPropagation()
         const itemToMove = JSON.parse(e.dataTransfer.getData("ITEM_TO_MOVE")) as Item
         const dropOrder = acceptDrop === "top" ? prevOrder : nextOrder
         const newOrder = (item.order + dropOrder) / 2

@@ -2,9 +2,11 @@
 
 import { CreateItem } from "./create"
 import { OptimisticActions } from "./board"
-import { useRef } from "react"
+import { useRef, useState, startTransition } from "react"
 import { ColumnType } from "@/db/queries"
 import { DraggableItem } from "./draggable-item"
+import { moveItem } from "@/actions"
+import { Item } from "@prisma/client"
 
 interface ColumnProps {
   boardId: string,
@@ -13,10 +15,35 @@ interface ColumnProps {
 }
 
 export function Column({ boardId, column, optimisticBoardAction }: ColumnProps) {
+  const [isDragOver, setIsDragOver] = useState(false)
   const listRef = useRef<HTMLUListElement>(null)
   const items = Object.values(column.items).sort((a, b) => a.order - b.order)
+  const optimisticMove = (item: Item, newOrder: number, newColumnId: string) => {
+    optimisticBoardAction({ type: "MOVE_ITEM", payload: { item, newOrder, newColumnId}})
+  }
   return (
-    <div className="bg-neutral-800 rounded flex-shrink-0 w-64 space-y-2 h-fit max-h-full flex flex-col">
+    <div
+      className={
+        "bg-neutral-800 rounded flex-shrink-0 w-64 space-y-2 h-fit max-h-full flex flex-col " +
+        (isDragOver ? "outline outline-2 outline-red-500 " : "")
+      }
+      onDragOver={(e) => {
+        e.preventDefault()
+        setIsDragOver(true)
+      }}
+      onDrop={(e) => {
+        const itemToMove = JSON.parse(e.dataTransfer.getData("ITEM_TO_MOVE")) as Item
+        startTransition(() => {
+          const newOrder = items.at(-1) ? items.at(-1)!.order + 1 : 1
+          optimisticMove(itemToMove, newOrder, column.id)
+          moveItem(itemToMove, newOrder, column.id)
+        })
+        setIsDragOver(false)
+      }}
+      onDragLeave={() => {
+        setIsDragOver(false)
+      }}
+    >
       <h1 className="pl-4 pt-2">{column.name}</h1>
       <ul className="overflow-y-auto" ref={listRef}>
           {items.length ?
@@ -26,7 +53,7 @@ export function Column({ boardId, column, optimisticBoardAction }: ColumnProps) 
                 item={item}
                 prevOrder={items[index-1] ? items[index-1].order : 0}
                 nextOrder={items[index+1] ? items[index+1].order : item.order+1}
-                optimisticMove={(item, newOrder, newColumnId) => optimisticBoardAction({ type: "MOVE_ITEM", payload: { item, newOrder, newColumnId}})}
+                optimisticMove={optimisticMove}
               />
             ))
             :
