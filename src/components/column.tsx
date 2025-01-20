@@ -5,9 +5,10 @@ import { OptimisticActions } from "./board"
 import { useRef, useState, startTransition } from "react"
 import { ColumnType } from "@/db/queries"
 import { DraggableItem } from "./draggable-item"
-import { deleteColumn, moveItem } from "@/actions"
+import { deleteColumn, moveItem, updateColumnName } from "@/actions"
 import { Item } from "@prisma/client"
 import { DeleteButton } from "./delete-button"
+import { EditableText } from "./editable-text"
 
 interface ColumnProps {
   boardId: string,
@@ -46,7 +47,18 @@ export function Column({ boardId, column, optimisticBoardAction }: ColumnProps) 
       }}
     >
       <div className="group flex justify-between px-4 pt-2">
-        <h1>{column.name}</h1>
+        <EditableText
+          text={column.name}
+          submitFn={(newName) => {
+            startTransition(() => {
+              optimisticBoardAction({
+                type: "UPD_COL_NAME",
+                payload: { columnId: column.id, newName }
+              })
+              updateColumnName(column.id, newName)
+            })
+          }}
+        />
         <DeleteButton
           className="invisible group-hover:visible hover:text-red-500 hover:cursor-pointer"
           onClick={() => {

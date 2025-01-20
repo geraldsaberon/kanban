@@ -1,11 +1,13 @@
 "use client"
 
-import { useOptimistic, useRef } from "react"
+import { startTransition, useOptimistic, useRef } from "react"
 import { getBoard, ColumnType } from "@/db/queries"
 import { Column } from "./column"
 import { Item } from "@prisma/client"
 import { produce } from "immer"
 import { CreateColumn } from "./create"
+import { EditableText } from "./editable-text"
+import { updateBoardName } from "@/actions"
 
 type BoardType = NonNullable<Awaited<ReturnType<typeof getBoard>>>
 
@@ -15,7 +17,20 @@ export function Board({ board }: { board: BoardType }) {
   const columns = Object.values(optimisticBoard.columns)
   return (
     <div className="h-screen p-2 flex flex-col gap-2">
-      <h1 className="text-xl">{board.name}</h1>
+      <div className="px-4 py-2 bg-neutral-800 rounded">
+        <EditableText
+          text={optimisticBoard.name}
+          submitFn={(newName) => {
+            startTransition(() => {
+              optimisticBoardAction({
+                type: "UPD_BRD_NAME",
+                payload: { newName }
+              })
+              updateBoardName(board.id, newName)
+            })
+          }}
+        />
+      </div>
       <div className="h-full flex gap-2 overflow-x-auto" ref={columnsRef}>
         {columns.map(col => (
           <Column
@@ -43,8 +58,10 @@ export type OptimisticActions =
     type: "MOVE_ITEM",
     payload: { item: Item, newOrder: number, newColumnId: string }
   } |
-  { type: "DEL_ITEM", payload: { itemId: string, columnId: string }} |
-  { type: "DEL_COL", payload: { columnId: string }}
+  { type: "DEL_ITEM", payload: { itemId: string, columnId: string } } |
+  { type: "DEL_COL", payload: { columnId: string } } |
+  { type: "UPD_COL_NAME", payload: { columnId: string, newName: string } } |
+  { type: "UPD_BRD_NAME", payload: { newName: string } }
 
 function useOptimisticBoard(board: BoardType) {
   const [optimisticBoard, optimisticBoardAction] = useOptimistic<typeof board, OptimisticActions>(
@@ -88,6 +105,18 @@ function useOptimisticBoard(board: BoardType) {
             delete draft.columns[columnId]
           })
           return nextState
+        }
+        case "UPD_COL_NAME": {
+          const columnId = action.payload.columnId
+          const newName = action.payload.newName
+          const nextState = produce(state, draft => {
+            draft.columns[columnId].name = newName
+          })
+          return nextState
+        }
+        case "UPD_BRD_NAME": {
+          const newName = action.payload.newName
+          return {...state, name: newName}
         }
         default: {
           return state
