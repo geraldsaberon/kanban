@@ -102,7 +102,12 @@ export function DraggableItem({ item, prevOrder, nextOrder, optimisticBoardActio
         ) : (
           <p>{item.content}</p>
         )}
-        <div className="flex flex-col gap-2">
+        <div
+          className={
+            "flex flex-col gap-2 " +
+            (isDragging ? "hidden" : "")
+          }
+        >
           <Button
             type="edit"
             className={"invisible group-hover:visible hover:opacity-50 hover:cursor-pointer " + (isEditing ? "!visible" : "")}
