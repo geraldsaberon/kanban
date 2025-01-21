@@ -8,6 +8,7 @@ import { produce } from "immer"
 import { CreateColumn } from "./create"
 import { EditableText } from "./editable-text"
 import { updateBoardName } from "@/actions"
+import Link from "next/link"
 
 type BoardType = NonNullable<Awaited<ReturnType<typeof getBoard>>>
 
@@ -17,7 +18,12 @@ export function Board({ board }: { board: BoardType }) {
   const columns = Object.values(optimisticBoard.columns)
   return (
     <div className="h-screen p-2 flex flex-col gap-2">
-      <div className="px-4 py-2 bg-neutral-800 rounded">
+      <div className="px-4 py-2 bg-neutral-800 rounded flex gap-4 items-center">
+        <Link href="/" aria-label="Home">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4 opacity-50">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+          </svg>
+        </Link>
         <EditableText
           text={optimisticBoard.name}
           submitFn={(newName) => {
