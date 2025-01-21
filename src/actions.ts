@@ -133,3 +133,16 @@ export async function updateBoardName(boardId: string, newName: string) {
   })
   revalidatePath("/board/")
 }
+
+export async function updateItemContent(itemId: string, newContent: string) {
+  await authenticateUser()
+  await prisma.item.update({
+    where: {
+      id: itemId
+    },
+    data: {
+      content: newContent
+    }
+  })
+  revalidatePath("/board/")
+}

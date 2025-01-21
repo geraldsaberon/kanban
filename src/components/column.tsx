@@ -7,7 +7,7 @@ import { ColumnType } from "@/db/queries"
 import { DraggableItem } from "./draggable-item"
 import { deleteColumn, moveItem, updateColumnName } from "@/actions"
 import { Item } from "@prisma/client"
-import { DeleteButton } from "./delete-button"
+import { Button } from "./button"
 import { EditableText } from "./editable-text"
 
 interface ColumnProps {
@@ -59,7 +59,8 @@ export function Column({ boardId, column, optimisticBoardAction }: ColumnProps) 
             })
           }}
         />
-        <DeleteButton
+        <Button
+          type="delete"
           className="invisible group-hover:visible hover:text-red-500 hover:cursor-pointer"
           onClick={() => {
             startTransition(() => {

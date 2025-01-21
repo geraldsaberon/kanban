@@ -1,7 +1,7 @@
 import { Item } from "@prisma/client";
-import { startTransition, useState } from "react";
-import { deleteItem, moveItem } from "@/actions";
-import { DeleteButton } from "./delete-button";
+import { startTransition, useRef, useState } from "react";
+import { deleteItem, moveItem, updateItemContent } from "@/actions";
+import { Button } from "./button";
 import { OptimisticActions } from "./board";
 
 interface DraggableItemProps {
@@ -12,14 +12,17 @@ interface DraggableItemProps {
 }
 
 export function DraggableItem({ item, prevOrder, nextOrder, optimisticBoardAction }: DraggableItemProps) {
+  const [isEditing, setIsEditing] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [acceptDrop, setAcceptDrop] = useState<"top" | "bottom" | "none">("none")
+  const submitEditButtonRef = useRef<HTMLButtonElement>(null)
   return (
     <li
       className={
-        "cursor-grab py-[2px] px-2 border-y-2 border-transparent " +
-        (isDragging ? "opacity-50 " : " ") +
-        (acceptDrop === "top" ? "border-t-red-500 " : acceptDrop === "bottom" ? "border-b-red-500 " : " ")
+        "py-[2px] px-2 border-y-2 border-transparent " +
+        (!isEditing ? "cursor-grab " : "") +
+        (isDragging ? "opacity-50 " : "") +
+        (acceptDrop === "top" ? "border-t-red-500 " : acceptDrop === "bottom" ? "border-b-red-500 " : "")
       }
       onDragStart={(e) => {
         e.dataTransfer.setData("ITEM_TO_MOVE", JSON.stringify(item))
@@ -54,19 +57,68 @@ export function DraggableItem({ item, prevOrder, nextOrder, optimisticBoardActio
       }}
     >
       <div
-        draggable
-        className="group p-2 min-h-16 bg-neutral-700 rounded flex justify-between items-baseline"
+        draggable={!isEditing}
+        className="group p-2 min-h-16 bg-neutral-700 rounded flex justify-between items-start"
       >
-        <p>{item.content}</p>
-        <DeleteButton
-          className="invisible group-hover:visible hover:text-red-500 hover:cursor-pointer"
-          onClick={() => {
+        {isEditing ? (
+          <form onSubmit={(e) => {
+            e.preventDefault()
+            const newContent = new FormData(e.currentTarget).get("newContent")!.toString()
             startTransition(() => {
-              optimisticBoardAction({ type: "DEL_ITEM", payload: { itemId: item.id, columnId: item.columnId }})
-              deleteItem(item.id)
+              optimisticBoardAction({
+                type: "UPD_ITEM_CONTENT",
+                payload: { itemId: item.id, columnId: item.columnId, newContent }
+              })
+              updateItemContent(item.id, newContent)
             })
-          }}
-        />
+          }}>
+            <textarea
+              autoFocus
+              className="resize-none overflow-hidden bg-transparent "
+              defaultValue={item.content}
+              onChange={(e) => {
+                e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
+              }}
+              onBlur={() => {
+                setIsEditing(false)
+                submitEditButtonRef.current?.click()
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault()
+                  setIsEditing(false)
+                  submitEditButtonRef.current?.click()
+                } else if (e.key === "Escape") {
+                  setIsEditing(false)
+                }
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
+              }}
+              name="newContent"
+            />
+            <button ref={submitEditButtonRef} hidden type="submit">Save</button>
+          </form>
+        ) : (
+          <p>{item.content}</p>
+        )}
+        <div className="flex flex-col gap-2">
+          <Button
+            type="edit"
+            className={"invisible group-hover:visible hover:opacity-50 hover:cursor-pointer " + (isEditing ? "!visible" : "")}
+            onClick={() => setIsEditing(true)}
+          />
+          <Button
+            type="delete"
+            className="invisible group-hover:visible hover:text-red-500 hover:cursor-pointer"
+            onClick={() => {
+              startTransition(() => {
+                optimisticBoardAction({ type: "DEL_ITEM", payload: { itemId: item.id, columnId: item.columnId }})
+                deleteItem(item.id)
+              })
+            }}
+          />
+        </div>
       </div>
     </li>
   )

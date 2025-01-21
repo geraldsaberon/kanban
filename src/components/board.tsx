@@ -67,7 +67,8 @@ export type OptimisticActions =
   { type: "DEL_ITEM", payload: { itemId: string, columnId: string } } |
   { type: "DEL_COL", payload: { columnId: string } } |
   { type: "UPD_COL_NAME", payload: { columnId: string, newName: string } } |
-  { type: "UPD_BRD_NAME", payload: { newName: string } }
+  { type: "UPD_BRD_NAME", payload: { newName: string } } |
+  { type: "UPD_ITEM_CONTENT", payload: { itemId: string, columnId: string, newContent: string } }
 
 function useOptimisticBoard(board: BoardType) {
   const [optimisticBoard, optimisticBoardAction] = useOptimistic<typeof board, OptimisticActions>(
@@ -123,6 +124,15 @@ function useOptimisticBoard(board: BoardType) {
         case "UPD_BRD_NAME": {
           const newName = action.payload.newName
           return {...state, name: newName}
+        }
+        case "UPD_ITEM_CONTENT": {
+          const itemId = action.payload.itemId
+          const columnId = action.payload.columnId
+          const newContent = action.payload.newContent
+          const nextState = produce(state, draft => {
+            draft.columns[columnId].items[itemId].content = newContent
+          })
+          return nextState
         }
         default: {
           return state
