@@ -108,6 +108,15 @@ export async function deleteColumn(columnId: string) {
   revalidatePath("/board/")
 }
 
+export async function deleteBoard(boardId: string) {
+  await authenticateUser()
+  await prisma.item.deleteMany({ where: { boardId } })
+  await prisma.column.deleteMany({ where: { boardId } })
+  await prisma.board.delete({ where: { id: boardId } })
+  revalidatePath("/")
+  redirect("/")
+}
+
 export async function updateColumnName(columnId: string, newName: string) {
   await authenticateUser()
   await prisma.column.update({
