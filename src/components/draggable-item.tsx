@@ -58,7 +58,7 @@ export function DraggableItem({ item, prevOrder, nextOrder, optimisticBoardActio
     >
       <div
         draggable={!isEditing}
-        className="group p-2 min-h-16 bg-neutral-700 rounded flex justify-between items-start"
+        className="group p-2 min-h-16 bg-neutral-700 rounded-sm flex justify-between items-start"
       >
         {isEditing ? (
           <form onSubmit={(e) => {
@@ -110,7 +110,7 @@ export function DraggableItem({ item, prevOrder, nextOrder, optimisticBoardActio
         >
           <Button
             type="edit"
-            className={"invisible group-hover:visible hover:opacity-50 hover:cursor-pointer " + (isEditing ? "!visible" : "")}
+            className={"invisible group-hover:visible hover:opacity-50 hover:cursor-pointer " + (isEditing ? "visible!" : "")}
             onClick={() => setIsEditing(true)}
           />
           <Button

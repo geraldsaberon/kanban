@@ -11,8 +11,8 @@ export function CreateBoard() {
   const [, formAction, isPending] = useActionState(createBoard, null)
   return (
     <form className="flex gap-2" action={formAction}>
-      <input required className="flex-grow rounded bg-neutral-800 p-4" placeholder="Enter board name..." type="text" name="name" />
-      <button disabled={isPending} className="rounded bg-neutral-800 p-4 disabled:opacity-50" type="submit">Create board</button>
+      <input required className="grow rounded-sm bg-neutral-800 p-4" placeholder="Enter board name..." type="text" name="name" />
+      <button disabled={isPending} className="rounded-sm bg-neutral-800 p-4 disabled:opacity-50" type="submit">Create board</button>
     </form>
   )
 }
@@ -30,7 +30,7 @@ export function CreateColumn({ boardId, isEditingInitially, scrollColumnsList, o
   const [, formAction] = useActionState(createColumn, null)
   return isEditing ? (
     <form
-      className="space-y-2 h-fit bg-neutral-800 p-2 rounded"
+      className="space-y-2 h-fit bg-neutral-800 p-2 rounded-sm"
       ref={formRef}
       action={formAction}
       onSubmit={(e) => {
@@ -59,19 +59,19 @@ export function CreateColumn({ boardId, isEditingInitially, scrollColumnsList, o
         required
         autoFocus
         autoComplete="off"
-        className="w-64 rounded bg-neutral-700 p-4"
+        className="w-64 rounded-sm bg-neutral-700 p-4"
         placeholder="Enter column name"
         type="text"
         name="name"
       />
       <button
         type="submit"
-        className="block w-full rounded bg-neutral-700 py-2"
+        className="block w-full rounded-sm bg-neutral-700 py-2"
       >Create column</button>
     </form>
   ) : (
     <button
-      className="min-w-12 size-12 text-3xl bg-neutral-800 rounded "
+      className="min-w-12 size-12 text-3xl bg-neutral-800 rounded-sm "
       onClick={() => {
         flushSync(() => {
           setIsEditing(true)
@@ -95,7 +95,7 @@ export function CreateItem({ boardId, columnId, order, optimisticAdd, scrollItem
   const [, formAction] = useActionState(createItem, null)
   return (
     <form
-      className="flex p-4 mt-4"
+      className="flex p-4"
       ref={formRef}
       onSubmit={(e) => {
         e.preventDefault()
@@ -118,7 +118,7 @@ export function CreateItem({ boardId, columnId, order, optimisticAdd, scrollItem
       <input hidden type="text" name="boardId" defaultValue={boardId} />
       <input hidden type="text" name="columnId" defaultValue={columnId} />
       <input hidden type="number" name="order" defaultValue={order} />
-      <input required className="flex-grow bg-transparent" placeholder="Enter new item" type="text" name="content" />
+      <input required className="grow bg-transparent" placeholder="Enter new item" type="text" name="content" />
       <button hidden type="submit">Add item</button>
     </form>
   )

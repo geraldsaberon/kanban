@@ -23,8 +23,8 @@ export function Column({ boardId, column, optimisticBoardAction }: ColumnProps) 
   return (
     <div
       className={
-        "bg-neutral-800 rounded flex-shrink-0 w-64 space-y-2 h-fit max-h-full flex flex-col " +
-        (isDragOver ? "outline outline-2 outline-red-500 " : "")
+        "bg-neutral-800 rounded-sm shrink-0 w-64 space-y-2 h-fit max-h-full flex flex-col " +
+        (isDragOver ? "outline-2 outline-red-500 " : "")
       }
       onDragOver={(e) => {
         e.preventDefault()

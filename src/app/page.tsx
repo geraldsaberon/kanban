@@ -10,7 +10,7 @@ export default async function Home() {
     return (
       <div className="w-[512px] mx-auto mt-2 space-y-2">
         <div className="flex justify-between mb-2 gap-2">
-          <span className="flex-grow rounded p-4 bg-neutral-800">Hello, {user.name}</span>
+          <span className="grow rounded-sm p-4 bg-neutral-800">Hello, {user.name}</span>
           <SignOut />
         </div>
         <BoardsList user={user} />
@@ -40,7 +40,7 @@ function SignIn({ provider }: { provider: "GitHub" | "Google" }) {
 
 function SignOut() {
   return (
-    <form className="flex p-4 rounded bg-neutral-800" action={async () => {
+    <form className="flex p-4 rounded-sm bg-neutral-800" action={async () => {
       "use server"
       await signOut()
     }}>
