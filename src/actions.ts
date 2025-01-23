@@ -155,3 +155,12 @@ export async function updateItemContent(itemId: string, newContent: string) {
   })
   revalidatePath("/board/")
 }
+
+export async function updateBoardColor(boardId: string, color: string) {
+  await authenticateUser()
+  await prisma.board.update({
+    where: { id: boardId },
+    data: { color }
+  })
+  revalidatePath(`/board/${boardId}`)
+}

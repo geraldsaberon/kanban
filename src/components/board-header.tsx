@@ -6,6 +6,7 @@ import { BoardType, OptimisticActions } from "./board"
 import { startTransition } from "react"
 import { updateBoardName } from "@/actions"
 import { DeleteBoardButton } from "./delete-board"
+import { ColorPicker } from "./color-picker"
 
 interface BoardHeaderProps {
   board: BoardType,
@@ -32,7 +33,11 @@ export function BoardHeader({ board, optimisticBoardAction }: BoardHeaderProps) 
           })
         }}
       />
-      <div className="ml-auto">
+      <div className="ml-auto flex items-center gap-4">
+        <ColorPicker
+          boardId={board.id}
+          optimisticColorUpdate={(color) => optimisticBoardAction({ type: "UPD_BRD_COLOR", payload: { color }})}
+        />
         <DeleteBoardButton boardId={board.id} />
       </div>
     </div>

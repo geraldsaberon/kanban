@@ -14,6 +14,7 @@ model Board {
   id      String @id
   name    String
   user    String
+  color   String?
 
   columns Column[]
   items   Item[]

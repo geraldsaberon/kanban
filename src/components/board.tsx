@@ -7,6 +7,7 @@ import { Item } from "@prisma/client"
 import { produce } from "immer"
 import { CreateColumn } from "./create"
 import { BoardHeader } from "./board-header"
+import { colors } from "./color-picker"
 
 export type BoardType = NonNullable<Awaited<ReturnType<typeof getBoard>>>
 
@@ -15,7 +16,7 @@ export function Board({ board }: { board: BoardType }) {
   const columnsRef = useRef<HTMLDivElement>(null)
   const columns = Object.values(optimisticBoard.columns)
   return (
-    <div className="h-screen p-2 flex flex-col gap-2">
+    <div className={"h-screen p-2 flex flex-col gap-2 " + (optimisticBoard.color || "")}>
       <BoardHeader board={optimisticBoard} optimisticBoardAction={optimisticBoardAction} />
       <div className="h-full flex gap-2 overflow-x-auto" ref={columnsRef}>
         {columns.map(col => (
@@ -48,6 +49,7 @@ export type OptimisticActions =
   { type: "DEL_COL", payload: { columnId: string } } |
   { type: "UPD_COL_NAME", payload: { columnId: string, newName: string } } |
   { type: "UPD_BRD_NAME", payload: { newName: string } } |
+  { type: "UPD_BRD_COLOR", payload: { color: typeof colors[number] } } |
   { type: "UPD_ITEM_CONTENT", payload: { itemId: string, columnId: string, newContent: string } }
 
 function useOptimisticBoard(board: BoardType) {
@@ -113,6 +115,10 @@ function useOptimisticBoard(board: BoardType) {
             draft.columns[columnId].items[itemId].content = newContent
           })
           return nextState
+        }
+        case "UPD_BRD_COLOR": {
+          const color = action.payload.color
+          return {...state, color}
         }
         default: {
           return state

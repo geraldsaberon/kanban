@@ -19,6 +19,7 @@ export async function getBoard(boardId: string) {
       id: board.id,
       name: board.name,
       user: board.user,
+      color: board.color,
       columns: board.columns.reduce((colAcc, col) => {
         colAcc[col.id] = {
           ...col,
