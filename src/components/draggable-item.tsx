@@ -58,7 +58,7 @@ export function DraggableItem({ item, prevOrder, nextOrder, optimisticBoardActio
     >
       <div
         draggable={!isEditing}
-        className="group p-2 min-h-16 bg-neutral-700 rounded-sm flex justify-between items-start"
+        className="bg-white shadow-sm dark:bg-neutral-700 dark:shadow-none group p-2 min-h-16 rounded-sm flex justify-between items-start"
       >
         {isEditing ? (
           <form onSubmit={(e) => {

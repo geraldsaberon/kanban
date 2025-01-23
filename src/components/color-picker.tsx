@@ -40,13 +40,13 @@ export function ColorPicker({ boardId, optimisticColorUpdate }: ColorPickerProps
       </PopoverButton>
       <PopoverPanel
         anchor="bottom end"
-        className="[--anchor-gap:8px] grid grid-cols-6 gap-2 bg-neutral-600 p-2 rounded transition duration-100 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
+        className="[--anchor-gap:8px] bg-neutral-100 shadow dark:bg-neutral-600 dark:shadow-none grid grid-cols-6 gap-2  p-2 rounded transition duration-100 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
         transition
       >
         {colors.map(color => (
             <button
               key={color}
-              className={"inline-block size-8 rounded hover:outline-2 outline-white cursor-pointer " + color}
+              className={"shadow dark:shadow-none inline-block size-8 rounded hover:outline-2 outline-white cursor-pointer " + color}
               aria-label="Change color"
               onClick={() => {
                 startTransition(() => {
