@@ -92,10 +92,11 @@ interface CreateItemProps {
 
 export function CreateItem({ boardId, columnId, order, optimisticAdd, scrollItemList }: CreateItemProps) {
   const formRef = useRef<HTMLFormElement>(null)
+  const submitButtonRef = useRef<HTMLButtonElement>(null)
   const [, formAction] = useActionState(createItem, null)
   return (
     <form
-      className="flex p-4"
+      className="flex p-2"
       ref={formRef}
       onSubmit={(e) => {
         e.preventDefault()
@@ -118,12 +119,27 @@ export function CreateItem({ boardId, columnId, order, optimisticAdd, scrollItem
       <input hidden type="text" name="boardId" defaultValue={boardId} />
       <input hidden type="text" name="columnId" defaultValue={columnId} />
       <input hidden type="number" name="order" defaultValue={order} />
-      <input required className="grow bg-transparent" placeholder="Enter new item" type="text" name="content" />
-      <button hidden type="submit">Add item</button>
+      <textarea
+        required
+        className="min-h-10 h-10 p-2 resize-none grow bg-transparent not-placeholder-shown:shadow dark:shadow-none not-placeholder-shown:bg-white dark:not-placeholder-shown:bg-neutral-700 rounded"
+        placeholder="Enter new item"
+        name="content"
+        onChange={(e) => {
+          e.currentTarget.style.height = "1px"
+          e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault()
+            e.currentTarget.style.height = "1px"
+            submitButtonRef.current?.click()
+          }
+        }}
+      />
+      <button ref={submitButtonRef} hidden type="submit">Add item</button>
     </form>
   )
 }
-
 
 function flushTransition(fn: () => void) {
   flushSync(() => startTransition(fn))
