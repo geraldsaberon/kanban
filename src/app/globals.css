@@ -5,6 +5,8 @@
   --color-foreground: var(--foreground);
 }
 
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
@@ -28,11 +30,9 @@
   --foreground: #171717;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+[data-theme='dark'] {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 body {

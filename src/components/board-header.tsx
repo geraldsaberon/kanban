@@ -7,6 +7,7 @@ import { startTransition } from "react"
 import { updateBoardName } from "@/actions"
 import { DeleteBoardButton } from "./delete-board"
 import { ColorPicker } from "./color-picker"
+import { ThemeToggle } from "./theme-toggle"
 
 interface BoardHeaderProps {
   board: BoardType,
@@ -34,6 +35,7 @@ export function BoardHeader({ board, optimisticBoardAction }: BoardHeaderProps) 
         }}
       />
       <div className="ml-auto flex items-center gap-4">
+        <ThemeToggle />
         <ColorPicker
           boardId={board.id}
           optimisticColorUpdate={(color) => optimisticBoardAction({ type: "UPD_BRD_COLOR", payload: { color }})}
