@@ -54,6 +54,7 @@ export function CreateColumn({ boardId, isEditingInitially, scrollColumnsList, o
         }
       }}
     >
+      <input hidden type="text" name="id" defaultValue={nanoid()} />
       <input hidden type="text" name="boardId" defaultValue={boardId} />
       <input
         required
