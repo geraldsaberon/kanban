@@ -100,7 +100,7 @@ export function DraggableItem({ item, prevOrder, nextOrder, optimisticBoardActio
             <button ref={submitEditButtonRef} hidden type="submit">Save</button>
           </form>
         ) : (
-          <p>{item.content}</p>
+          <p className="break-words overflow-hidden">{item.content}</p>
         )}
         <div
           className={
