@@ -28,7 +28,7 @@ export function EditableText({ text, submitFn }: EditableTextProps) {
   ) : (
     <button
       onClick={() => setIsEditing(true)}
-      className="w-fit"
+      className="break-words overflow-hidden text-left"
     >{text}</button>
   )
 }

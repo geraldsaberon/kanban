@@ -61,7 +61,7 @@ export function Column({ boardId, column, optimisticBoardAction }: ColumnProps) 
         />
         <Button
           type="delete"
-          className="invisible group-hover:visible hover:text-red-500 hover:cursor-pointer"
+          className="invisible shrink-0 group-hover:visible hover:text-red-500 hover:cursor-pointer"
           onClick={() => {
             startTransition(() => {
               optimisticBoardAction({ type: "DEL_COL", payload: { columnId: column.id }})
