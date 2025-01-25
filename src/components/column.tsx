@@ -46,7 +46,7 @@ export function Column({ boardId, column, optimisticBoardAction }: ColumnProps) 
         setIsDragOver(false)
       }}
     >
-      <div className="group flex justify-between px-4 pt-2">
+      <div className="group relative flex justify-between px-4 pt-2">
         <EditableText
           text={column.name}
           submitFn={(newName) => {
@@ -61,7 +61,7 @@ export function Column({ boardId, column, optimisticBoardAction }: ColumnProps) 
         />
         <Button
           type="delete"
-          className="invisible shrink-0 group-hover:visible hover:text-red-500 hover:cursor-pointer"
+          className="invisible relative top-1 shrink-0 group-hover:visible hover:text-red-500 hover:cursor-pointer"
           onClick={() => {
             startTransition(() => {
               optimisticBoardAction({ type: "DEL_COL", payload: { columnId: column.id }})
