@@ -20,9 +20,12 @@ export default async function Home() {
   }
 
   return (
-    <div>
-      <SignIn provider="GitHub" />
-      <SignIn provider="Google" />
+    <div className="h-screen flex flex-col gap-4 items-center justify-center">
+      <h1 className="text-3xl">Kanban</h1>
+      <div className="flex flex-col items-center justify-center">
+        <SignIn provider="GitHub" />
+        <SignIn provider="Google" />
+      </div>
     </div>
   )
 }
@@ -33,7 +36,7 @@ function SignIn({ provider }: { provider: "GitHub" | "Google" }) {
       "use server"
       await signIn(provider.toLowerCase())
     }}>
-      <button className="whitespace-nowrap" type="submit">Sign in with {provider}</button>
+      <button className="whitespace-nowrap cursor-pointer" type="submit">Sign in with {provider}</button>
     </form>
   )
 }
@@ -44,7 +47,7 @@ function SignOut() {
       "use server"
       await signOut()
     }}>
-      <button className="whitespace-nowrap" type="submit">Sign out</button>
+      <button className="whitespace-nowrap cursor-pointer" type="submit">Sign out</button>
     </form>
   )
 }
