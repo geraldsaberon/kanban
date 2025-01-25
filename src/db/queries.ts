@@ -36,3 +36,11 @@ export async function getBoard(boardId: string) {
 }
 
 export type ColumnType = Column & { items: Record<Item["id"], Item>}
+
+export async function getBoardName(boardId: string) {
+  const res = await prisma.board.findUnique({
+    where: { id: boardId },
+    select: { name: true }
+  })
+  return res?.name || null
+}

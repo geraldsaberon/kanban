@@ -1,8 +1,16 @@
 import { Board } from "@/components/board"
-import { getBoard } from "@/db/queries"
+import { getBoard, getBoardName } from "@/db/queries"
 import { getUser } from "@/utils"
 import Link from "next/link"
 import { redirect } from "next/navigation"
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }>}) {
+  const boardId = (await params).id
+  const boardName = await getBoardName(boardId)
+  return {
+    title: `${boardName || "Board not found"} | Kanban`
+  }
+}
 
 export default async function BoardPage({
   params
