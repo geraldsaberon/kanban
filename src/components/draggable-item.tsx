@@ -105,7 +105,7 @@ export function DraggableItem({ item, prevOrder, nextOrder, optimisticBoardActio
         <div
           className={
             "flex flex-col gap-2 " +
-            (isDragging ? "hidden" : "")
+            (isDragging ? "opacity-0" : "")
           }
         >
           <Button
