@@ -1,5 +1,5 @@
 import { Item } from "@prisma/client";
-import { startTransition, useRef, useState } from "react";
+import { startTransition, useState } from "react";
 import { deleteItem, moveItem, updateItemContent } from "@/actions";
 import { Button } from "./button";
 import { OptimisticActions } from "./board";
@@ -15,7 +15,6 @@ export function DraggableItem({ item, prevOrder, nextOrder, optimisticBoardActio
   const [isEditing, setIsEditing] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [acceptDrop, setAcceptDrop] = useState<"top" | "bottom" | "none">("none")
-  const submitEditButtonRef = useRef<HTMLButtonElement>(null)
   return (
     <li
       className={
@@ -61,44 +60,38 @@ export function DraggableItem({ item, prevOrder, nextOrder, optimisticBoardActio
         className="bg-white shadow-sm dark:bg-neutral-700 dark:shadow-none group p-2 min-h-16 rounded-sm flex justify-between items-start"
       >
         {isEditing ? (
-          <form onSubmit={(e) => {
-            e.preventDefault()
-            const newContent = new FormData(e.currentTarget).get("newContent")!.toString()
-            startTransition(() => {
-              optimisticBoardAction({
-                type: "UPD_ITEM_CONTENT",
-                payload: { itemId: item.id, columnId: item.columnId, newContent }
-              })
-              updateItemContent(item.id, newContent)
-            })
-          }}>
-            <textarea
-              autoFocus
-              className="resize-none overflow-hidden bg-transparent "
-              defaultValue={item.content}
-              onChange={(e) => {
-                e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
-              }}
-              onBlur={() => {
+          <textarea
+            autoFocus
+            className="resize-none overflow-hidden w-full"
+            defaultValue={item.content}
+            onChange={(e) => {
+              e.currentTarget.style.height = "1px"
+              e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
+            }}
+            onBlur={() => setIsEditing(false)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault()
                 setIsEditing(false)
-                submitEditButtonRef.current?.click()
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault()
-                  setIsEditing(false)
-                  submitEditButtonRef.current?.click()
-                } else if (e.key === "Escape") {
-                  setIsEditing(false)
-                }
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
-              }}
-              name="newContent"
-            />
-            <button ref={submitEditButtonRef} hidden type="submit">Save</button>
-          </form>
+                const newContent = e.currentTarget.value
+                startTransition(() => {
+                  optimisticBoardAction({
+                    type: "UPD_ITEM_CONTENT",
+                    payload: { itemId: item.id, columnId: item.columnId, newContent }
+                  })
+                  updateItemContent(item.id, newContent)
+                })
+              } else if (e.key === "Escape") {
+                setIsEditing(false)
+              }
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.height = `1px`
+              e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
+              e.currentTarget.setSelectionRange(e.currentTarget.value.length, e.currentTarget.value.length)
+            }}
+            name="newContent"
+          />
         ) : (
           <p className="break-words overflow-hidden">{item.content}</p>
         )}
