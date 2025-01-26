@@ -8,27 +8,37 @@ interface EditableTextProps {
 export function EditableText({ text, submitFn }: EditableTextProps) {
   const [isEditing, setIsEditing] = useState(false)
   return isEditing ? (
-    <form
+    <textarea
+      required
+      autoFocus
+      defaultValue={text}
+      name="newText"
+      className="resize-none overflow-hidden w-full"
       onBlur={() => setIsEditing(false)}
-      onSubmit={(e) => {
-        e.preventDefault()
-        const newText = new FormData(e.currentTarget).get("newText")!.toString()
-        submitFn(newText)
-        setIsEditing(false)
+      onChange={(e) => {
+        e.currentTarget.style.height = "1px"
+        e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
       }}
-    >
-      <input
-        required
-        autoFocus
-        defaultValue={text}
-        name="newText"
-        className="bg-transparent"
-      />
-    </form>
+      onFocus={(e) => {
+        e.currentTarget.style.height = "1px"
+        e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
+        e.currentTarget.setSelectionRange(e.currentTarget.value.length, e.currentTarget.value.length)
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault()
+          const newText = e.currentTarget.value.trim()
+          submitFn(newText)
+          setIsEditing(false)
+        } else if (e.key === "Escape") {
+          setIsEditing(false)
+        }
+      }}
+    />
   ) : (
     <button
       onClick={() => setIsEditing(true)}
-      className="break-words overflow-hidden text-left"
+      className="break-words overflow-hidden text-left w-full"
     >{text}</button>
   )
 }
