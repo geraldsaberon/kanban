@@ -24,6 +24,7 @@ model Board {
 model Column {
   id      String @id
   name    String
+  order   Float
   items   Item[]
 
   boardId String

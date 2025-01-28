@@ -35,6 +35,7 @@ export async function createColumn(_: unknown, formdata: FormData) {
   await authenticateUser()
   const name = formdata.get("name")
   const boardId = formdata.get("boardId")
+  const order = formdata.get("order")
 
   if (!name || !boardId) {
     return {
@@ -46,7 +47,8 @@ export async function createColumn(_: unknown, formdata: FormData) {
     data: {
       id: nanoid(),
       name: name.toString(),
-      boardId: boardId.toString()
+      boardId: boardId.toString(),
+      order: Number(order)
     }
   })
   revalidatePath(`/board/${boardId}`)
@@ -85,6 +87,15 @@ export async function moveItem(item: Item, newOrder: number, newColumnId: string
     }
   })
   revalidatePath(`board/${item.boardId}`)
+}
+
+export async function moveColumn(id: string, newOrder: number) {
+  await authenticateUser()
+  await prisma.column.update({
+    where: { id },
+    data: { order: newOrder }
+  })
+  revalidatePath("/board/")
 }
 
 export async function deleteItem(itemId: string) {

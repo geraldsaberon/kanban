@@ -19,12 +19,13 @@ export function CreateBoard() {
 
 interface CreateColumnProps {
   boardId: string,
+  order: number,
   isEditingInitially: boolean
   optimisticAdd: (newCol: ColumnType) => void,
   scrollColumnsList: () => void,
 }
 
-export function CreateColumn({ boardId, isEditingInitially, scrollColumnsList, optimisticAdd }: CreateColumnProps) {
+export function CreateColumn({ boardId, order, isEditingInitially, scrollColumnsList, optimisticAdd }: CreateColumnProps) {
   const [isEditing, setIsEditing] = useState(isEditingInitially)
   const formRef = useRef<HTMLFormElement>(null)
   const [, formAction] = useActionState(createColumn, null)
@@ -40,6 +41,7 @@ export function CreateColumn({ boardId, isEditingInitially, scrollColumnsList, o
           optimisticAdd({
             id: String(formdata.get("id")),
             boardId: String(formdata.get("boardId")),
+            order: Number(formdata.get("order")),
             name: String(formdata.get("name")),
             items: {}
           })
@@ -56,6 +58,7 @@ export function CreateColumn({ boardId, isEditingInitially, scrollColumnsList, o
     >
       <input hidden type="text" name="id" defaultValue={nanoid()} />
       <input hidden type="text" name="boardId" defaultValue={boardId} />
+      <input hidden type="text" name="order" defaultValue={order} />
       <input
         required
         autoFocus

@@ -14,21 +14,24 @@ export type BoardType = NonNullable<Awaited<ReturnType<typeof getBoard>>>
 export function Board({ board }: { board: BoardType }) {
   const { optimisticBoard, optimisticBoardAction } = useOptimisticBoard(board)
   const columnsRef = useRef<HTMLDivElement>(null)
-  const columns = Object.values(optimisticBoard.columns)
+  const columns = Object.values(optimisticBoard.columns).sort((a, b) => a.order - b.order)
   return (
     <div className={"h-screen p-2 flex flex-col gap-2 " + (optimisticBoard.color || "")}>
       <BoardHeader board={optimisticBoard} optimisticBoardAction={optimisticBoardAction} />
-      <div className="h-full flex gap-2 overflow-x-auto" ref={columnsRef}>
-        {columns.map(col => (
+      <div className="h-full flex overflow-x-auto" ref={columnsRef}>
+        {columns.map((col, index) => (
           <Column
             key={col.id}
             boardId={optimisticBoard.id}
             column={col}
+            prevOrder={columns[index-1] ? columns[index-1].order : 1}
+            nextOrder={columns[index+1] ? columns[index+1].order : col.order+1}
             optimisticBoardAction={optimisticBoardAction}
           />
         ))}
         <CreateColumn
           boardId={board.id}
+          order={columns[columns.length-1] ? columns[columns.length-1].order + 1 : 1 }
           scrollColumnsList={() => columnsRef.current && (columnsRef.current.scrollLeft = columnsRef.current.scrollWidth)}
           optimisticAdd={(newCol) => optimisticBoardAction({ type: "ADD_COL", payload: newCol})}
           isEditingInitially={columns.length === 0}
@@ -41,10 +44,8 @@ export function Board({ board }: { board: BoardType }) {
 export type OptimisticActions =
   { type: "ADD_ITEM", payload: Item } |
   { type: "ADD_COL", payload: ColumnType } |
-  {
-    type: "MOVE_ITEM",
-    payload: { item: Item, newOrder: number, newColumnId: string }
-  } |
+  { type: "MOVE_ITEM", payload: { item: Item, newOrder: number, newColumnId: string } } |
+  { type: "MOVE_COL", payload: { columnId: string, newOrder: number } } |
   { type: "DEL_ITEM", payload: { itemId: string, columnId: string } } |
   { type: "DEL_COL", payload: { columnId: string } } |
   { type: "UPD_COL_NAME", payload: { columnId: string, newName: string } } |
@@ -77,6 +78,14 @@ function useOptimisticBoard(board: BoardType) {
             delete draft.columns[item.columnId].items[item.id]
             item.columnId = action.payload.newColumnId
             draft.columns[item.columnId].items[item.id] = item
+          })
+          return nextState
+        }
+        case "MOVE_COL": {
+          const columnId = action.payload.columnId
+          const newOrder = action.payload.newOrder
+          const nextState = produce(state, draft => {
+            draft.columns[columnId].order = newOrder
           })
           return nextState
         }

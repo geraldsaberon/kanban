@@ -36,9 +36,9 @@ export function EditableText({ text, submitFn }: EditableTextProps) {
       }}
     />
   ) : (
-    <button
+    <h2
       onClick={() => setIsEditing(true)}
       className="break-words overflow-hidden text-left w-full"
-    >{text}</button>
+    >{text}</h2>
   )
 }

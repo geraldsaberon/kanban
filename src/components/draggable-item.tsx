@@ -24,7 +24,9 @@ export function DraggableItem({ item, prevOrder, nextOrder, optimisticBoardActio
         (acceptDrop === "top" ? "border-t-red-500 " : acceptDrop === "bottom" ? "border-b-red-500 " : "")
       }
       onDragStart={(e) => {
-        e.dataTransfer.setData("ITEM_TO_MOVE", JSON.stringify(item))
+        e.stopPropagation()
+        e.dataTransfer.setData("DRAG_TYPE", "ITEM")
+        e.dataTransfer.setData("DRAG_DATA", JSON.stringify(item))
         setIsDragging(true)
       }}
       onDragEnd={() => {
@@ -32,26 +34,32 @@ export function DraggableItem({ item, prevOrder, nextOrder, optimisticBoardActio
       }}
       onDragOver={(e) => {
         e.preventDefault()
-        e.stopPropagation()
-        const rect = e.currentTarget.getBoundingClientRect();
-        const midpoint = (rect.top + rect.bottom) / 2;
-        setAcceptDrop(e.clientY <= midpoint ? "top" : "bottom");
+        const dragType = e.dataTransfer.getData("DRAG_TYPE")
+        if (dragType === "ITEM") {
+          const rect = e.currentTarget.getBoundingClientRect();
+          const midpoint = (rect.top + rect.bottom) / 2;
+          setAcceptDrop(e.clientY <= midpoint ? "top" : "bottom");
+          e.stopPropagation()
+        }
       }}
       onDragLeave={() => {
         setAcceptDrop("none")
       }}
       onDrop={(e) => {
-        e.stopPropagation()
-        const itemToMove = JSON.parse(e.dataTransfer.getData("ITEM_TO_MOVE")) as Item
-        const dropOrder = acceptDrop === "top" ? prevOrder : nextOrder
-        const newOrder = (item.order + dropOrder) / 2
-        startTransition(() => {
-          optimisticBoardAction({
-            type: "MOVE_ITEM",
-            payload: { item: itemToMove, newColumnId: item.columnId, newOrder }}
-          )
-          moveItem(itemToMove, newOrder, item.columnId)
-        })
+        const dragType = e.dataTransfer.getData("DRAG_TYPE")
+        if (dragType === "ITEM") {
+          const itemToMove = JSON.parse(e.dataTransfer.getData("DRAG_DATA")) as Item
+          const dropOrder = acceptDrop === "top" ? prevOrder : nextOrder
+          const newOrder = (item.order + dropOrder) / 2
+          startTransition(() => {
+            optimisticBoardAction({
+              type: "MOVE_ITEM",
+              payload: { item: itemToMove, newColumnId: item.columnId, newOrder }}
+            )
+            moveItem(itemToMove, newOrder, item.columnId)
+          })
+          e.stopPropagation()
+        }
         setAcceptDrop("none")
       }}
     >
