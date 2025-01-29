@@ -31,8 +31,8 @@ export function Column({ boardId, column, prevOrder, nextOrder, optimisticBoardA
         (acceptDrop === "left" ? "border-l-red-500 " : acceptDrop === "right" ? "border-r-red-500 " : "")
       }
       onDragStart={(e) => {
-        e.dataTransfer.setData("DRAG_TYPE", "COLUMN")
-        e.dataTransfer.setData("DRAG_DATA", JSON.stringify(column))
+        e.dataTransfer.setData("drag_column", "")
+        e.dataTransfer.setData("drag_data", JSON.stringify(column))
         setIsDragging(true)
       }}
       onDragEnd={() => {
@@ -40,7 +40,7 @@ export function Column({ boardId, column, prevOrder, nextOrder, optimisticBoardA
       }}
       onDragOver={(e) => {
         e.preventDefault()
-        const dragType = e.dataTransfer.getData("DRAG_TYPE")
+        const dragType = e.dataTransfer.types.includes("drag_item") ? "ITEM" : "COLUMN"
         if (dragType === "ITEM") {
           setIsCardDragOver(true)
         } else if (dragType === "COLUMN") {
@@ -50,9 +50,9 @@ export function Column({ boardId, column, prevOrder, nextOrder, optimisticBoardA
         }
       }}
       onDrop={(e) => {
-        const dragType = e.dataTransfer.getData("DRAG_TYPE")
+        const dragType = e.dataTransfer.types.includes("drag_item") ? "ITEM" : "COLUMN"
         if (dragType === "ITEM") {
-          const itemToMove = JSON.parse(e.dataTransfer.getData("DRAG_DATA")) as Item
+          const itemToMove = JSON.parse(e.dataTransfer.getData("drag_data")) as Item
           startTransition(() => {
             const newOrder = items.at(-1) ? items.at(-1)!.order + 1 : 1
             optimisticBoardAction({
@@ -62,7 +62,7 @@ export function Column({ boardId, column, prevOrder, nextOrder, optimisticBoardA
             moveItem(itemToMove, newOrder, column.id)
           })
         } else if (dragType === "COLUMN") {
-          const columnToMove = JSON.parse(e.dataTransfer.getData("DRAG_DATA")) as ColumnType
+          const columnToMove = JSON.parse(e.dataTransfer.getData("drag_data")) as ColumnType
           const dropOrder = acceptDrop === "left" ? prevOrder : nextOrder
           const newOrder = (column.order + dropOrder) / 2
           startTransition(() => {

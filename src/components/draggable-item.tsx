@@ -25,8 +25,8 @@ export function DraggableItem({ item, prevOrder, nextOrder, optimisticBoardActio
       }
       onDragStart={(e) => {
         e.stopPropagation()
-        e.dataTransfer.setData("DRAG_TYPE", "ITEM")
-        e.dataTransfer.setData("DRAG_DATA", JSON.stringify(item))
+        e.dataTransfer.setData("drag_item", "")
+        e.dataTransfer.setData("drag_data", JSON.stringify(item))
         setIsDragging(true)
       }}
       onDragEnd={() => {
@@ -34,7 +34,7 @@ export function DraggableItem({ item, prevOrder, nextOrder, optimisticBoardActio
       }}
       onDragOver={(e) => {
         e.preventDefault()
-        const dragType = e.dataTransfer.getData("DRAG_TYPE")
+        const dragType = e.dataTransfer.types.includes("drag_item") ? "ITEM" : "COLUMN"
         if (dragType === "ITEM") {
           const rect = e.currentTarget.getBoundingClientRect();
           const midpoint = (rect.top + rect.bottom) / 2;
@@ -46,9 +46,9 @@ export function DraggableItem({ item, prevOrder, nextOrder, optimisticBoardActio
         setAcceptDrop("none")
       }}
       onDrop={(e) => {
-        const dragType = e.dataTransfer.getData("DRAG_TYPE")
+        const dragType = e.dataTransfer.types.includes("drag_item") ? "ITEM" : "COLUMN"
         if (dragType === "ITEM") {
-          const itemToMove = JSON.parse(e.dataTransfer.getData("DRAG_DATA")) as Item
+          const itemToMove = JSON.parse(e.dataTransfer.getData("drag_data")) as Item
           const dropOrder = acceptDrop === "top" ? prevOrder : nextOrder
           const newOrder = (item.order + dropOrder) / 2
           startTransition(() => {
