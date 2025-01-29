@@ -24,7 +24,7 @@ export function Board({ board }: { board: BoardType }) {
             key={col.id}
             boardId={optimisticBoard.id}
             column={col}
-            prevOrder={columns[index-1] ? columns[index-1].order : 1}
+            prevOrder={columns[index-1] ? columns[index-1].order : 0}
             nextOrder={columns[index+1] ? columns[index+1].order : col.order+1}
             optimisticBoardAction={optimisticBoardAction}
           />
