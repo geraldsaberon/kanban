@@ -23,8 +23,9 @@ export default async function Home() {
     <div className="h-screen flex flex-col gap-4 items-center justify-center">
       <h1 className="text-3xl">Kanban</h1>
       <div className="flex flex-col items-center justify-center">
-        <SignIn provider="GitHub" />
-        <SignIn provider="Google" />
+        {process.env.AUTH_GITHUB_ID && <SignIn provider="GitHub" />}
+        {process.env.AUTH_GOOGLE_ID && <SignIn provider="Google" />}
+        <div className="hidden only:block text-red-500">Error: Signing in not available at the moment :(</div>
       </div>
     </div>
   )
